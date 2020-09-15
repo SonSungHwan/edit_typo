@@ -137,9 +137,9 @@ def check_word_typo_type(words, pro_list):
             n = pro
             if pro >= len(type_list):  # 정해진 오타 개수 유지를 위해서는 수정해야함. 선정한 오타 타입의 오타 개수보다
                 word_pos = np.r_[word_pos, type_list]  # 실제 해당 오타 타입에 해당하는 단어가 적은 경우 오타 개수를 유지시키는 문제
-                result_pro_list[i] = len(type_list)  # 사실상 입력 문장의 단어의 수가 많아서 크게 문제는없을 것으로 판단
+                result_pro_list[i] = len(type_list)  # 사실상 일정 수 이상의 어절로 구성된 문장을 사용
                 check_list[type_list] = np.zeros(len(pro_list), dtype=int)
-                pro_list[i + 1] += (pro - len(type_list))  # 임시방편 수정 필요
+                pro_list[i + 1] += (pro - len(type_list))
             else:
                 while (n > 0):
                     pos = random.randrange(len(type_list))
