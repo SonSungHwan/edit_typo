@@ -187,7 +187,7 @@ def main():
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
-        "--corpus_file", default='C:/Users/ssh/Desktop/작업/data/KCC150_Korean_sentences_UTF8/KCC150_Korean_sentences_UTF8.txt', type=str, required=True, help="corpus data path"
+        "--corpus_file", default='./KCC150_Korean_sentences_UTF8.txt', type=str, required=True, help="corpus data path"
     )
     parser.add_argument(
         "--output_path", default='./', type=str, reqrired=True, help="output result folder path"
