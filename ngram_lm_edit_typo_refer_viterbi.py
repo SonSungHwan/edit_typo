@@ -1,4 +1,4 @@
-#edit_typo code lib
+# edit_typo code lib
 
 import re
 from operator import itemgetter
@@ -18,13 +18,15 @@ SENT_START = '<<SOS>>'
 SENT_END = '<<EOS>>'
 
 TOTAL_CHAR = ['ㄲ', 'ㅆ', 'ㄱ', 'ㅅ', 'ㅛ', 'ㅕ', 'ㄹ', 'ㅎ', 'ㅗ', 'ㅊ', 'ㅍ', 'ㅠ', 'ㄺ', 'ㄽ', 'ㅃ', 'ㅉ',
-           'ㄸ', 'ㅒ', 'ㅖ', 'ㅂ', 'ㅈ', 'ㄷ', 'ㅁ', 'ㄴ', 'ㅇ', 'ㅋ', 'ㅌ', 'ㅑ', 'ㅐ', 'ㅔ', 'ㅓ', 'ㅏ',
-           'ㅣ', 'ㅜ', 'ㅡ', 'ㅘ', 'ㅚ', 'ㅟ', 'ㅢ']
+              'ㄸ', 'ㅒ', 'ㅖ', 'ㅂ', 'ㅈ', 'ㄷ', 'ㅁ', 'ㄴ', 'ㅇ', 'ㅋ', 'ㅌ', 'ㅑ', 'ㅐ', 'ㅔ', 'ㅓ', 'ㅏ',
+              'ㅣ', 'ㅜ', 'ㅡ', 'ㅘ', 'ㅚ', 'ㅟ', 'ㅢ']
+
 
 def replace_num(word):
     if re.search(r'\d+', word):
         word = re.sub(r'\d+', NUMBER, word)
     return word
+
 
 def make_candidats(char):
     cs = ''.join(split_syllable_char(char))
@@ -51,6 +53,7 @@ def make_candidats(char):
 
     return candidats
 
+
 def word_candidats(word, unigram):  # 입력 어절의 후보 어절들의 유니그램 존재 여부에 따라 후보 어절을 걸러내는 모듈
     char_list = []
     word_candidate_list = []
@@ -73,7 +76,8 @@ def word_candidats(word, unigram):  # 입력 어절의 후보 어절들의 유�
         origin_word.append(num_eng)
 
     temp = origin_word[:]
-    for i, char_candidate in enumerate(char_list):  # 간섭오타로 어절의 한 글자씩 교체하여 후보 어절을 생성(unigram에 없는 단어라면 제외)
+    # 간섭오타로 어절의 한 글자씩 교체하여 후보 어절을 생성(unigram에 없는 단어라면 제외)
+    for i, char_candidate in enumerate(char_list):
         if len(char_candidate) > 1:
             for c in char_candidate:
                 temp[i] = c
@@ -86,6 +90,7 @@ def word_candidats(word, unigram):  # 입력 어절의 후보 어절들의 유�
             temp = origin_word[:]
 
     return word_candidate_list
+
 
 def context_window_list(wcl, word_bi_f, word_bi_b):
     score_list = []
@@ -142,18 +147,22 @@ def context_window_list(wcl, word_bi_f, word_bi_b):
                     f_p = 0.
                     b_p = 0.
                     try:
-                        f_p = word_bi_f[replace_num(pre_word[0])][replace_num(word[0])]
+                        f_p = word_bi_f[replace_num(
+                            pre_word[0])][replace_num(word[0])]
                     except KeyError:
                         f_p = 0.
 
                     for aft_word in wcl[i + 2]:
                         try:
-                            b_p += word_bi_b[replace_num(aft_word[0])][replace_num(word[0])]
+                            b_p += word_bi_b[replace_num(aft_word[0])
+                                             ][replace_num(word[0])]
                         except KeyError:
                             b_p += 0.
 
-                    temp.append((word[0], pre_word[0], (f_p + (b_p / len(wcl[i + 2]))) / 2))
-                    buff[word[0]][pre_word[0]] = (f_p + (b_p / len(wcl[i + 2]))) / 2
+                    temp.append(
+                        (word[0], pre_word[0], (f_p + (b_p / len(wcl[i + 2]))) / 2))
+                    buff[word[0]][pre_word[0]] = (
+                        f_p + (b_p / len(wcl[i + 2]))) / 2
                 buf.append(temp)
                 temp = sorted(temp, key=lambda x: x[2], reverse=True)
                 if temp[0][2] > 0.:
@@ -170,7 +179,8 @@ def context_window_list(wcl, word_bi_f, word_bi_b):
                 buff = {}
             else:
                 for kk in list(buff.keys()):
-                    sorted_buff = sorted(buff[kk].items(), key=itemgetter(1), reverse=True)
+                    sorted_buff = sorted(
+                        buff[kk].items(), key=itemgetter(1), reverse=True)
                     if sorted_buff[0][1] == 0.:
                         del buff[kk]
 
@@ -180,8 +190,10 @@ def context_window_list(wcl, word_bi_f, word_bi_b):
 
     return score_list
 
+
 def viterbi_edit(sent, unigram, word_bi_f, word_bi_b, syl_tri_f, syl_tri_b, min_freq, using_syl_edit):
-    word_combi_list = make_sent_combi_list(sent, unigram, syl_tri_f, syl_tri_b, min_freq, using_syl_edit)
+    word_combi_list = make_sent_combi_list(
+        sent, unigram, syl_tri_f, syl_tri_b, min_freq, using_syl_edit)
     # rute = bigram_score_list_dict(word_combi_list, word_bigram) #단방향
     rute = context_window_list(word_combi_list, word_bi_f, word_bi_b)  # 양방향
     paths = []
@@ -212,7 +224,8 @@ def viterbi_edit(sent, unigram, word_bi_f, word_bi_b, syl_tri_f, syl_tri_b, min_
                         if last_word == pk and rute[i][node[0]][pk] > 0.:
                             temp_p = p[0][:]
                             temp_p.append(node[0])
-                            temp_path.append([temp_p, p[1] * rute[i][node[0]][pk]])
+                            temp_path.append(
+                                [temp_p, p[1] * rute[i][node[0]][pk]])
                         # else:
                         # print(pk, node[0])
                         # print(rute[i][node[0]][pk])
@@ -327,7 +340,8 @@ def edit_test(input_path, output_path, unigram, word_bi_f, word_bi_b, syl_tri_f,
             typo_pos_int.append(int(p))
 
         try:
-            edit_sent_result = viterbi_edit(s[1], unigram, word_bi_f, word_bi_b, syl_tri_f, syl_tri_b, min_freq, using_syl_edit)
+            edit_sent_result = viterbi_edit(s[1], unigram, word_bi_f, word_bi_b, syl_tri_f, syl_tri_b, min_freq,
+                                            using_syl_edit)
         except MemoryError:
             continue
         target_sent = s[0].split()
@@ -336,7 +350,8 @@ def edit_test(input_path, output_path, unigram, word_bi_f, word_bi_b, syl_tri_f,
             correct_sent_num += 1
             correct_word_num += len(target_sent)
             correct_typo_word_num += 3
-            correct_result += '<' + s[0] + '\n' + '>' + s[1] + '\n' + s[2] + '\n\n'
+            correct_result += '<' + s[0] + '\n' + \
+                '>' + s[1] + '\n' + s[2] + '\n\n'
         else:
             error_result += '<' + s[0] + '\n' + '>' + s[1] + '\n' + s[2] + '\n' + '==>' + ' '.join(
                 edit_sent_result[0]) + '\n\n'
@@ -357,16 +372,19 @@ def edit_test(input_path, output_path, unigram, word_bi_f, word_bi_b, syl_tri_f,
             print(s[0])
         # if (k+1) % 100 == 0:
         # break
-    with open(output_path+'correct_edit_sent_vit.txt', 'w', encoding='utf-8') as correct_f:
+    with open(output_path + 'correct_edit_sent_vit.txt', 'w', encoding='utf-8') as correct_f:
         correct_f.write(correct_result)
-    with open(output_path+'error_edit_sent_vit.txt', 'w', encoding='utf-8') as error_f:
+    with open(output_path + 'error_edit_sent_vit.txt', 'w', encoding='utf-8') as error_f:
         error_f.write(error_result)
 
     logging.info(msg='correct sentence num: ' + str(correct_sent_num))
     logging.info(msg='correct word num: ' + str(correct_word_num))
-    logging.info(msg='correct edit typo word num: ' + str(correct_typo_word_num))
+    logging.info(msg='correct edit typo word num: ' +
+                 str(correct_typo_word_num))
     logging.info(msg='decorrect edit typo word num: ' + str(no_edit_typo))
-    logging.info(msg='edit original word(word that no need to edit) num: ' + str(error_word_num))
+    logging.info(
+        msg='edit original word(word that no need to edit) num: ' + str(error_word_num))
+
 
 def main():
     parser = argparse.ArgumentParser()
@@ -386,19 +404,23 @@ def main():
         "--unigram_path", default='./unigram_150.json', type=str, reqrired=True, help="unigram lm path"
     )
     parser.add_argument(
-        "--word_bigram_f_path", default='./word_bi_result.json', type=str, reqrired=True, help="word bigram forward lm path"
+        "--word_bigram_f_path", default='./word_bi_result.json', type=str, reqrired=True,
+        help="word bigram forward lm path"
     )
     parser.add_argument(
-        "--word_bigram_b_path", default='./word_bi_result_reverse.json', type=str, reqrired=True, help="word bigram backward lm path"
+        "--word_bigram_b_path", default='./word_bi_result_reverse.json', type=str, reqrired=True,
+        help="word bigram backward lm path"
     )
     parser.add_argument(
-        "--syl_trigram_f_path", default='./f_result_tri.json', type=str, reqrired=True, help="syllable trigram forward lm path"
+        "--syl_trigram_f_path", default='./f_result_tri.json', type=str, reqrired=True,
+        help="syllable trigram forward lm path"
     )
     parser.add_argument(
-        "--syl_trigram_b_path", default='./b_result_tri.json', type=str, reqrired=True, help="syllable trigram backward lm path"
+        "--syl_trigram_b_path", default='./b_result_tri.json', type=str, reqrired=True,
+        help="syllable trigram backward lm path"
     )
     parser.add_argument(
-        "--unigram_min_freq", default=1, type=int,  reqrired=True, help="candidate unigram minimum frequency"
+        "--unigram_min_freq", default=1, type=int, reqrired=True, help="candidate unigram minimum frequency"
     )
 
     args = parser.parse_args()
@@ -411,7 +433,9 @@ def main():
         syl_tri_f = load_json(args.syl_trigram_f_path)
         syl_tri_b = load_json(args.syl_trigram_b_path)
 
-    edit_test(args.typo_text_path, args.output_path, unigram, word_bi_f, word_bi_b, syl_tri_f, syl_tri_b, args.unigram_min_freq, args.using_syl_edit)
+    edit_test(args.typo_text_path, args.output_path, unigram, word_bi_f, word_bi_b, syl_tri_f, syl_tri_b,
+              args.unigram_min_freq, args.using_syl_edit)
+
 
 if __name__ == "__main__":
     main()

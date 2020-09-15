@@ -1,4 +1,4 @@
-#hangule jamo seperate & check code
+# hangule jamo seperate & check code
 from __future__ import unicode_literals
 
 import sys
@@ -8,6 +8,7 @@ import pickle
 import gzip
 import ujson
 import re
+
 
 def __c(x):
     return six.unichr(x)
@@ -19,7 +20,6 @@ def __items(x):
 
 if sys.version_info[0] <= 2:
     import codecs
-
 
     def __u(x):
         return codecs.unicode_escape_decode(x)[0]
@@ -46,7 +46,6 @@ FINALS = list(map(__c, [0x3131, 0x3132, 0x3133, 0x3134, 0x3135, 0x3136,
                         0x313e, 0x313f, 0x3140, 0x3141, 0x3142, 0x3144,
                         0x3145, 0x3146, 0x3147, 0x3148, 0x314a, 0x314b,
                         0x314c, 0x314d, 0x314e]))
-
 CHAR_LISTS = {TYPE_INITIAL: INITIALS, TYPE_MEDIAL: MEDIALS, TYPE_FINAL: FINALS}
 CHAR_SETS = dict(map(lambda x: (x[0], set(x[1])), __items(CHAR_LISTS)))
 CHARSET = functools.reduce(lambda x, y: x.union(y), CHAR_SETS.values(), set())
@@ -109,7 +108,7 @@ def join_jamos_char(initial, medial, final=None):
     :return: A syllable.
     """
     if initial not in CHAR_SETS[TYPE_INITIAL] or medial not in CHAR_SETS[
-        TYPE_MEDIAL] or (final and final not in CHAR_SETS[TYPE_FINAL]):
+            TYPE_MEDIAL] or (final and final not in CHAR_SETS[TYPE_FINAL]):
         raise ValueError("Given Jamo characters are not valid.")
 
     initial_ind = CHAR_INDICES[TYPE_INITIAL][initial]
@@ -219,9 +218,11 @@ def read_file(path):
         text = f.read()
     return text
 
+
 def write_file(path, data):
     with open(path, 'w', encoding='utf-8') as f:
         f.write(data)
+
 
 def save_pickle(path, data):
     with gzip.open(path, 'wb') as f:

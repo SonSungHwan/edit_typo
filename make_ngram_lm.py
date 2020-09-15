@@ -1,4 +1,4 @@
-#make ngram data code lib
+# make ngram data code lib
 import numpy as np
 import re
 import argparse
@@ -8,13 +8,13 @@ from tqdm import tqdm
 
 from hangul_char_util import readlines_file, save_json, check_syllable
 
-
 NUMBER = '<<NUM>>'
 ENG = '<<ENG>>'
 SENT_START = '<<SOS>>'
 SENT_END = '<<EOS>>'
 
 corpus_path = 'C:/Users/ssh/Desktop/작업/data/KCC150_Korean_sentences_UTF8/KCC150_Korean_sentences_UTF8.txt'
+
 
 def n_gram(chars, n):
     return list(zip(*[chars[i:] for i in range(n)]))
@@ -55,6 +55,7 @@ def syllable_add_SEtoken(word, n):  # 음절 ngram 정제, word 시작, 끝 토�
 
     return result
 
+
 def get_sent_list(sent, n_gram):  # sent 단위 리스트 생성
     words = []
     sent = sent.split()
@@ -67,6 +68,7 @@ def get_sent_list(sent, n_gram):  # sent 단위 리스트 생성
         words.append(SENT_END)  # 역방향 ngram 구할 때 사용
         words.insert(0, SENT_START)
     return words
+
 
 def fwbw_n_gram(n_gram):
     forward = []
@@ -82,13 +84,15 @@ def fwbw_n_gram(n_gram):
 
     return forward, backward
 
-def preprocessing(lines, n, word_ngram= True):
+
+def preprocessing(lines, n, word_ngram=True):
     p_forward = []
     b_forward = []
 
     if word_ngram:
         for line in lines:
-            p_f_words, p_b_words = fwbw_n_gram(n_gram(get_sent_list(line, n), n))
+            p_f_words, p_b_words = fwbw_n_gram(
+                n_gram(get_sent_list(line, n), n))
             if len(p_f_words) > 0:
                 p_forward.append(p_f_words)
             if len(p_b_words) > 0:
@@ -97,7 +101,8 @@ def preprocessing(lines, n, word_ngram= True):
         words = get_word_list('\n'.join(lines.strip()))
 
         for word in words:
-            p_f_word, p_b_word = fwbw_n_gram(n_gram(syllable_add_SEtoken(word, n), n))
+            p_f_word, p_b_word = fwbw_n_gram(
+                n_gram(syllable_add_SEtoken(word, n), n))
             if len(p_f_word) > 0:
                 p_forward.append(p_f_word)
             if len(p_b_word) > 0:
@@ -136,12 +141,14 @@ def calc_n_gram(text, n, f_calc_result, b_calc_result, last):
         for key in f_calc_result.keys():
             total = sum(f_calc_result[key].values())
             for c in f_calc_result[key]:
-                f_calc_result[key][c] = [f_calc_result[key][c] / total, f_calc_result[key][c]]
+                f_calc_result[key][c] = [f_calc_result[key]
+                                         [c] / total, f_calc_result[key][c]]
 
         for key in b_calc_result.keys():
             total = sum(b_calc_result[key].values())
             for c in b_calc_result[key]:
-                b_calc_result[key][c] = [b_calc_result[key][c] / total, b_calc_result[key][c]]
+                b_calc_result[key][c] = [b_calc_result[key]
+                                         [c] / total, b_calc_result[key][c]]
 
     return f_calc_result, b_calc_result
 
@@ -156,7 +163,8 @@ def mass_data_lm(path, line_num, n_gram):
 
     while (1):
         if (index + line_num) > len_lines:
-            f_calc_result, b_calc_result = calc_n_gram(lines[index:], n_gram, f_calc_result, b_calc_result, True)
+            f_calc_result, b_calc_result = calc_n_gram(
+                lines[index:], n_gram, f_calc_result, b_calc_result, True)
             break
         else:
             f_calc_result, b_calc_result = calc_n_gram(lines[index: index + line_num], n_gram, f_calc_result,
@@ -182,6 +190,7 @@ def unigram(path):
 
     return {k: cnt[k] for k in cnt if cnt[k] > 1}
 
+
 def main():
     parser = argparse.ArgumentParser()
 
@@ -192,10 +201,10 @@ def main():
         "--output_path", default='./', type=str, reqrired=True, help="output result folder path"
     )
     parser.add_argument(
-        "--ngram_n", default=2, type=int,  reqrired=True, help="set n in ngram"
+        "--ngram_n", default=2, type=int, reqrired=True, help="set n in ngram"
     )
     parser.add_argument(
-        "--per_process_line_num", default=2, type=int,  reqrired=True, help="set n in ngram"
+        "--per_process_line_num", default=2, type=int, reqrired=True, help="set n in ngram"
     )
 
     args = parser.parse_args()
@@ -203,9 +212,13 @@ def main():
     if args.ngram_n == 1:
         save_json(args.output_path + 'unigram.json', unigram(args.corpus_file))
     elif args.ngram_n > 1:
-        fw_result, bw_result= mass_data_lm(args.corpus_file, args.per_process_line_num, args.ngram_n)
-        save_json(args.output_path + str(args.ngram_n)+'gram_fw_result.json', fw_result)
-        save_json(args.output_path + str(args.ngram_n) + 'gram_bw_result.json', bw_result)
+        fw_result, bw_result = mass_data_lm(
+            args.corpus_file, args.per_process_line_num, args.ngram_n)
+        save_json(args.output_path + str(args.ngram_n) +
+                  'gram_fw_result.json', fw_result)
+        save_json(args.output_path + str(args.ngram_n) +
+                  'gram_bw_result.json', bw_result)
+
 
 if __name__ == "__main__":
     main()

@@ -1,4 +1,4 @@
-#edit_typo code lib
+# edit_typo code lib
 
 import re
 import statistics
@@ -17,8 +17,9 @@ SENT_START = '<<SOS>>'
 SENT_END = '<<EOS>>'
 
 TOTAL_CHAR = ['ㄲ', 'ㅆ', 'ㄱ', 'ㅅ', 'ㅛ', 'ㅕ', 'ㄹ', 'ㅎ', 'ㅗ', 'ㅊ', 'ㅍ', 'ㅠ', 'ㄺ', 'ㄽ', 'ㅃ', 'ㅉ',
-           'ㄸ', 'ㅒ', 'ㅖ', 'ㅂ', 'ㅈ', 'ㄷ', 'ㅁ', 'ㄴ', 'ㅇ', 'ㅋ', 'ㅌ', 'ㅑ', 'ㅐ', 'ㅔ', 'ㅓ', 'ㅏ',
-           'ㅣ', 'ㅜ', 'ㅡ', 'ㅘ', 'ㅚ', 'ㅟ', 'ㅢ']
+              'ㄸ', 'ㅒ', 'ㅖ', 'ㅂ', 'ㅈ', 'ㄷ', 'ㅁ', 'ㄴ', 'ㅇ', 'ㅋ', 'ㅌ', 'ㅑ', 'ㅐ', 'ㅔ', 'ㅓ', 'ㅏ',
+              'ㅣ', 'ㅜ', 'ㅡ', 'ㅘ', 'ㅚ', 'ㅟ', 'ㅢ']
+
 
 def make_candidats(char):
     cs = ''.join(split_syllable_char(char))
@@ -77,7 +78,8 @@ def word_candidats(word, unigram):  # 입력 어절의 후보 어절들의 유�
         origin_word.append(num_eng)
 
     temp = origin_word[:]
-    for i, char_candidate in enumerate(char_list):  # 간섭오타로 어절의 한 글자씩 교체하여 후보 어절을 생성(unigram에 없는 단어라면 제외)
+    # 간섭오타로 어절의 한 글자씩 교체하여 후보 어절을 생성(unigram에 없는 단어라면 제외)
+    for i, char_candidate in enumerate(char_list):
         if len(char_candidate) > 1:
             for c in char_candidate:
                 temp[i] = c
@@ -162,7 +164,9 @@ def syllable_edit_word(word, unigram, syl_tri_f, syl_tri_b, n_gram):  # 음절 n
     else:
         return syllable_add_SEtoken(wc_list[0][0], n_gram)
 
-def make_word_candidats(word, unigram, syl_tri_f, syl_tri_b, min_freq, using_syl_edit):  # 입력 문장의 한 어절 단위로 후보 어절들을 생성하되 해당 어절의 후보 어절들이 전부 유니그램에 존재하지 않으면, 음절 단위로 수정
+
+def make_word_candidats(word, unigram, syl_tri_f, syl_tri_b, min_freq,
+                        using_syl_edit):  # 입력 문장의 한 어절 단위로 후보 어절들을 생성하되 해당 어절의 후보 어절들이 전부 유니그램에 존재하지 않으면, 음절 단위로 수정
     candidate = []
     num_buff = []
 
@@ -185,19 +189,22 @@ def make_word_candidats(word, unigram, syl_tri_f, syl_tri_b, min_freq, using_syl
     if len(candidate) > 0:
         return candidate
 
-    elif using_syl_edit:  # 음절 n-gram을 사용하지 않는 경우를 확인할 때 수정 필요, 음절 ngram을 사용한 어절 수정 부분(후보 어절이 없다면, 원본 어절을 음절 ngram으로 수정)
+    # 음절 n-gram을 사용하지 않는 경우를 확인할 때 수정 필요, 음절 ngram을 사용한 어절 수정 부분(후보 어절이 없다면, 원본 어절을 음절 ngram으로 수정)
+    elif using_syl_edit:
         if len(num_buff) > 0:  # 수정해야 한다면 숫자도 복원
             num_restore_candi = result[0][0]
             for n in num_buff:
                 num_restore_candi = num_restore_candi.replace(NUMBER, n, 1)
-            candidate = [''.join(syllable_edit_word(num_restore_candi, unigram, syl_tri_f, syl_tri_b, 3)[2:-2])]
+            candidate = [''.join(syllable_edit_word(
+                num_restore_candi, unigram, syl_tri_f, syl_tri_b, 3)[2:-2])]
             candidate_word = candidate[0]
             for n in num_buff:
                 candidate_word = candidate_word.replace(NUMBER, n, 1)
             # 음절 양방향 ngram 사용 어휘를 알기 위한 조치
             candidate = [candidate_word]
         else:
-            candidate = [''.join(syllable_edit_word(result[0][0], unigram, syl_tri_f, syl_tri_b, 3)[2:-2])]
+            candidate = [''.join(syllable_edit_word(
+                result[0][0], unigram, syl_tri_f, syl_tri_b, 3)[2:-2])]
 
         if candidate[0] != result[0][0]:
             if len(num_buff) > 0:
@@ -206,24 +213,27 @@ def make_word_candidats(word, unigram, syl_tri_f, syl_tri_b, min_freq, using_syl
                 candidate.append(result[0][0])
         return candidate
 
-    #음절 ngram을 사용하지 않는 모듈
+    # 음절 ngram을 사용하지 않는 모듈
     elif len(num_buff) > 0 and not using_syl_edit:
         candidate_word = result[0][0]
         for n in num_buff:
             candidate_word = candidate_word.replace(NUMBER, n, 1)
         candidate = [candidate_word]
-    else: candidate = [result[0][0]]
+    else:
+        candidate = [result[0][0]]
 
     return candidate
 
 
-def make_sent_combi_list(sent, unigram, syl_tri_f, syl_tri_b, min_freq, using_syl_edit):  # 문장을 어절 단위로 후보 어절들을 생성(원본은 유지 if 원본밖에 없다면, 후보 어절들의 Unigram 빈도수가 0인 경우)
+def make_sent_combi_list(sent, unigram, syl_tri_f, syl_tri_b, min_freq,
+                         using_syl_edit):  # 문장을 어절 단위로 후보 어절들을 생성(원본은 유지 if 원본밖에 없다면, 후보 어절들의 Unigram 빈도수가 0인 경우)
     words = sent.split()
     sent_combi_list = []
 
     for word in words:
         if check_han_word(word):
-            sent_combi_list.append(make_word_candidats(word, unigram, syl_tri_f, syl_tri_b, min_freq, using_syl_edit))
+            sent_combi_list.append(make_word_candidats(
+                word, unigram, syl_tri_f, syl_tri_b, min_freq, using_syl_edit))
         else:
             sent_combi_list.append([word])
 
@@ -231,10 +241,13 @@ def make_sent_combi_list(sent, unigram, syl_tri_f, syl_tri_b, min_freq, using_sy
     sent_combi_list.append([SENT_END])
     return sent_combi_list
 
-def edit_sent(sent, unigram, min_freq, word_bi_f, word_bi_b, word_tri_f, word_tri_b, syl_tri_f, syl_tri_b, using_syl_edit):
+
+def edit_sent(sent, unigram, min_freq, word_bi_f, word_bi_b, word_tri_f, word_tri_b, syl_tri_f, syl_tri_b,
+              using_syl_edit):
     edited_sent = []
 
-    candidats_word_sent = make_sent_combi_list(sent, unigram, syl_tri_f, syl_tri_b, min_freq, using_syl_edit)
+    candidats_word_sent = make_sent_combi_list(
+        sent, unigram, syl_tri_f, syl_tri_b, min_freq, using_syl_edit)
     # print(candidats_word_sent)
     tri_gram_candidats = n_gram(candidats_word_sent, 3)
     candidats_word_sent.insert(0, [SENT_START])
@@ -245,7 +258,8 @@ def edit_sent(sent, unigram, min_freq, word_bi_f, word_bi_b, word_tri_f, word_tr
 
         if len(candidate_word) > 1:  # 후보 어절이 없다면 그대로 유지(음절 ngram으로 수정 되거나 원본)
             select_list = {}
-            fif = list(product(*fif_gram_candidats[i]))  # 목표 어절과 양 사이드 2개, 총 5개의 어절을 통해 어절 ngram을 활용하기 위한 사전 작업
+            # 목표 어절과 양 사이드 2개, 총 5개의 어절을 통해 어절 ngram을 활용하기 위한 사전 작업
+            fif = list(product(*fif_gram_candidats[i]))
             for f in fif:
                 target = re.sub('\d+', NUMBER, f[2])
                 p_target = re.sub('\d+', NUMBER, f[1])
@@ -272,7 +286,8 @@ def edit_sent(sent, unigram, min_freq, word_bi_f, word_bi_b, word_tri_f, word_tr
                         else:
                             select_list[f[2]] = word_tri_p
                     else:
-                        select_list[f[2]] = statistics.mean([word_tri_p, word_tri_r_p])
+                        select_list[f[2]] = statistics.mean(
+                            [word_tri_p, word_tri_r_p])
                 else:
                     # if select_list[t[1]] < statistics.mean([word_bi_p, word_bi_r_p]):
                     if i == 0 or i == len(candidats_word_sent[2:-2]) - 1:
@@ -281,9 +296,11 @@ def edit_sent(sent, unigram, min_freq, word_bi_f, word_bi_b, word_tri_f, word_tr
                         else:
                             select_list[f[2]] += word_tri_p
                     else:
-                        select_list[f[2]] += statistics.mean([word_tri_p, word_tri_r_p])
+                        select_list[f[2]
+                                    ] += statistics.mean([word_tri_p, word_tri_r_p])
 
-            sort_dict_t = sorted(select_list.items(), key=(lambda x: x[1]), reverse=True)
+            sort_dict_t = sorted(select_list.items(), key=(
+                lambda x: x[1]), reverse=True)
             if sort_dict_t[0][1] > 0:
                 edited_sent.append(sort_dict_t[0][0])
                 continue
@@ -307,12 +324,15 @@ def edit_sent(sent, unigram, min_freq, word_bi_f, word_bi_b, word_tri_f, word_tr
                     word_bi_r_p = 0.
 
                 if t[1] not in select_list:
-                    select_list[t[1]] = statistics.mean([word_bi_p, word_bi_r_p])
+                    select_list[t[1]] = statistics.mean(
+                        [word_bi_p, word_bi_r_p])
                 else:
                     # if select_list[t[1]] < statistics.mean([word_bi_p, word_bi_r_p]):
-                    select_list[t[1]] += statistics.mean([word_bi_p, word_bi_r_p])
+                    select_list[t[1]
+                                ] += statistics.mean([word_bi_p, word_bi_r_p])
 
-            sort_dict = sorted(select_list.items(), key=(lambda x: x[1]), reverse=True)
+            sort_dict = sorted(select_list.items(), key=(
+                lambda x: x[1]), reverse=True)
             # print(sort_dict)
             if sort_dict[0][1] > 0:
                 edited_sent.append(sort_dict[0][0])
@@ -342,7 +362,8 @@ def read_text(path):
     return result
 
 
-def edit_test(input_path, output_path, unigram, word_bi_f, word_bi_b, word_tri_f, word_tri_b, syl_tri_f, syl_tri_b,  min_freq, using_syl_edit= True):
+def edit_test(input_path, output_path, unigram, word_bi_f, word_bi_b, word_tri_f, word_tri_b, syl_tri_f, syl_tri_b,
+              min_freq, using_syl_edit=True):
     correct_sent_num = 0
     correct_word_num = 0
 
@@ -367,7 +388,7 @@ def edit_test(input_path, output_path, unigram, word_bi_f, word_bi_b, word_tri_f
 
         try:
             edit_sent_result = edit_sent(s[1], unigram, min_freq, word_bi_f, word_bi_b, word_tri_f,
-                                            word_tri_b, syl_tri_f, syl_tri_b, using_syl_edit)  # Tri추가
+                                         word_tri_b, syl_tri_f, syl_tri_b, using_syl_edit)  # Tri추가
             # edit_sent_result = edit_sent(s[1], unigram, min_freq, word_bi_gram, word_bi_gram_r) #어절 바이그램만 사용하는 경우
         except MemoryError:
             continue
@@ -378,7 +399,8 @@ def edit_test(input_path, output_path, unigram, word_bi_f, word_bi_b, word_tri_f
             correct_sent_num += 1
             correct_word_num += len(target_sent)
             correct_typo_word_num += 3
-            correct_result += '<' + s[0] + '\n' + '>' + s[1] + '\n' + s[2] + '\n\n'
+            correct_result += '<' + s[0] + '\n' + \
+                '>' + s[1] + '\n' + s[2] + '\n\n'
         else:
             error_result += '<' + s[0] + '\n' + '>' + s[1] + '\n' + s[2] + '\n' + '==>' + ' '.join(
                 edit_sent_result) + '\n\n'
@@ -399,16 +421,19 @@ def edit_test(input_path, output_path, unigram, word_bi_f, word_bi_b, word_tri_f
         print(k, "time :", time.time() - start)
         # if (k+1) % 100 == 0:
         # break
-    with open(output_path+'correct_edit_sent_ts.txt', 'w', encoding='utf-8') as correct_f:
+    with open(output_path + 'correct_edit_sent_ts.txt', 'w', encoding='utf-8') as correct_f:
         correct_f.write(correct_result)
-    with open(output_path+'error_edit_sent_ts.txt', 'w', encoding='utf-8') as error_f:
+    with open(output_path + 'error_edit_sent_ts.txt', 'w', encoding='utf-8') as error_f:
         error_f.write(error_result)
 
     logging.info(msg='correct sentence num: ' + str(correct_sent_num))
     logging.info(msg='correct word num: ' + str(correct_word_num))
-    logging.info(msg='correct edit typo word num: ' + str(correct_typo_word_num))
+    logging.info(msg='correct edit typo word num: ' +
+                 str(correct_typo_word_num))
     logging.info(msg='decorrect edit typo word num: ' + str(no_edit_typo))
-    logging.info(msg='edit original word(word that no need to edit) num: ' + str(error_word_num))
+    logging.info(
+        msg='edit original word(word that no need to edit) num: ' + str(error_word_num))
+
 
 def main():
     parser = argparse.ArgumentParser()
@@ -428,25 +453,30 @@ def main():
         "--unigram_path", default='./unigram_150.json', type=str, reqrired=True, help="unigram lm path"
     )
     parser.add_argument(
-        "--word_bigram_f_path", default='./word_bi_result.json', type=str, reqrired=True, help="word bigram forward lm path"
+        "--word_bigram_f_path", default='./word_bi_result.json', type=str, reqrired=True,
+        help="word bigram forward lm path"
     )
     parser.add_argument(
-        "--word_bigram_b_path", default='./word_bi_result_reverse.json', type=str, reqrired=True, help="word bigram backward lm path"
+        "--word_bigram_b_path", default='./word_bi_result_reverse.json', type=str, reqrired=True,
+        help="word bigram backward lm path"
     )
     parser.add_argument(
         "--word_trigram_f_path", default='./Wtri_M.json', type=str, reqrired=True, help="word trigram forward lm path"
     )
     parser.add_argument(
-        "--word_trigram_b_path", default='./Wtri_M_r.json', type=str, reqrired=True, help="word trigram backward lm path"
+        "--word_trigram_b_path", default='./Wtri_M_r.json', type=str, reqrired=True,
+        help="word trigram backward lm path"
     )
     parser.add_argument(
-        "--syl_trigram_f_path", default='./f_result_tri.json', type=str, reqrired=True, help="syllable trigram forward lm path"
+        "--syl_trigram_f_path", default='./f_result_tri.json', type=str, reqrired=True,
+        help="syllable trigram forward lm path"
     )
     parser.add_argument(
-        "--syl_trigram_b_path", default='./b_result_tri.json', type=str, reqrired=True, help="syllable trigram backward lm path"
+        "--syl_trigram_b_path", default='./b_result_tri.json', type=str, reqrired=True,
+        help="syllable trigram backward lm path"
     )
     parser.add_argument(
-        "--unigram_min_freq", default=1, type=int,  reqrired=True, help="candidate unigram minimum frequency"
+        "--unigram_min_freq", default=1, type=int, reqrired=True, help="candidate unigram minimum frequency"
     )
 
     args = parser.parse_args()
@@ -461,7 +491,8 @@ def main():
         syl_tri_f = load_json(args.syl_trigram_f_path)
         syl_tri_b = load_json(args.syl_trigram_b_path)
 
-    edit_test(args.typo_text_path, args.output_path, unigram, word_bi_f, word_bi_b, word_tri_f, word_tri_b, syl_tri_f, syl_tri_b, args.unigram_min_freq,
+    edit_test(args.typo_text_path, args.output_path, unigram, word_bi_f, word_bi_b, word_tri_f, word_tri_b, syl_tri_f,
+              syl_tri_b, args.unigram_min_freq,
               args.using_syl_edit)
 
 
