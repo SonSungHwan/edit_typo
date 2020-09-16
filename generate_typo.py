@@ -126,7 +126,7 @@ def check_word_typo_type(words, pro_list):
     for i, word in enumerate(words):
         chars = set(list(split_syllables(word)))
         for n in range(len(pro_list)):
-            type_set = set(TOTAL_TYPO_TYPE[n])
+            type_set = TOTAL_TYPO_TYPE[n]
             if len(chars & type_set) > 0:
                 check_list[i][n] += 1
 

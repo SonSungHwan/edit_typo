@@ -56,9 +56,8 @@ def syllable_add_SEtoken(word, n):  # 음절 ngram 정제, word 시작, 끝 토�
 
 def get_sent_list(sent, n_gram):  # sent 단위 리스트 생성
     words = []
-    split_sent = sent.split()
 
-    for word in split_sent:
+    for word in sent.split():
         word = re.sub('\d+', NUMBER, word)
         words.append(word)
 
