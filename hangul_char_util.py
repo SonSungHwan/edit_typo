@@ -262,6 +262,6 @@ def data_info(path):
     for line in lines:
         word_num += len(line.strip().split())
 
-    print('line num:', line_num, '\n' + 'word num:', word_num)
+    print(f'line num: {line_num}\nword num: {word_num}')
 
     return line_num, word_num

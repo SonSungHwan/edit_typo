@@ -397,11 +397,9 @@ def edit_test(input_path, output_path, unigram, word_bi_f, word_bi_b, word_tri_f
             correct_sent_num += 1
             correct_word_num += len(target_sent)
             correct_typo_word_num += 3
-            correct_result += '<' + s[0] + '\n' + \
-                '>' + s[1] + '\n' + s[2] + '\n\n'
+            correct_result += f'<{s[0]}\n>{s[1]}\n{s[2]}\n\n'
         else:
-            error_result += '<' + s[0] + '\n' + '>' + s[1] + '\n' + s[2] + '\n' + '==>' + ' '.join(
-                edit_sent_result) + '\n\n'
+            error_result += f'<{s[0]}\n>{s[1]}\n{s[2]}\n==>{" ".join(edit_sent_result)}\n\n'
             for i, word in enumerate(target_sent):  # 음절 임베딩을 사용한 경우를 찾기 위한 조치
                 if i in typo_pos_int:
                     temp_temp = edit_sent_result[i]
@@ -416,7 +414,7 @@ def edit_test(input_path, output_path, unigram, word_bi_f, word_bi_b, word_tri_f
                         correct_word_num += 1
                     else:
                         error_word_num += 1
-        print(k, "time :", time.time() - start)
+        print(f'{k} time : {time.time() - start}')
         # if (k+1) % 100 == 0:
         # break
     with open(output_path + 'correct_edit_sent_ts.txt', 'w', encoding='utf-8') as correct_f:
@@ -490,8 +488,7 @@ def main():
         syl_tri_b = load_json(args.syl_trigram_b_path)
 
     edit_test(args.typo_text_path, args.output_path, unigram, word_bi_f, word_bi_b, word_tri_f, word_tri_b, syl_tri_f,
-              syl_tri_b, args.unigram_min_freq,
-              args.using_syl_edit)
+              syl_tri_b, args.unigram_min_freq, args.using_syl_edit)
 
 
 if __name__ == "__main__":

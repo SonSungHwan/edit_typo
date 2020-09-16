@@ -210,8 +210,7 @@ def main():
         sent_list, typo_pos = make_typo(
             line.strip(), TYPO_TYPE_PRO_LIST, args.per_sent_typo_num)
         typo_sent = ' '.join(sent_list)
-        result += '<' + line.strip() + '\n'
-        result += '>' + typo_sent + '\n'
+        result += f'<{line.strip()}\n>{typo_sent}\n'
         result += re.sub(r'[\[\]]', '', str(typo_pos)) + '\n'
 
     write_file(args.output_path + 'typo_text.txt', result.strip())

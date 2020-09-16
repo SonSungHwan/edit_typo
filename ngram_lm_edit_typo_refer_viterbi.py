@@ -350,11 +350,9 @@ def edit_test(input_path, output_path, unigram, word_bi_f, word_bi_b, syl_tri_f,
             correct_sent_num += 1
             correct_word_num += len(target_sent)
             correct_typo_word_num += 3
-            correct_result += '<' + s[0] + '\n' + \
-                '>' + s[1] + '\n' + s[2] + '\n\n'
+            correct_result += f'<{s[0]}\n>{s[1]}\n{s[2]}\n\n'
         else:
-            error_result += '<' + s[0] + '\n' + '>' + s[1] + '\n' + s[2] + '\n' + '==>' + ' '.join(
-                edit_sent_result[0]) + '\n\n'
+            error_result += f'<{s[0]}\n>{s[1]}\n{s[2]}\n==>{" ".join(edit_sent_result[0])}\n\n'
             for i, word in enumerate(target_sent):  # 음절 임베딩을 사용한 경우를 찾기 위한 조치
                 if i in typo_pos_int:
                     if edit_sent_result[0][i] == word:
@@ -367,7 +365,7 @@ def edit_test(input_path, output_path, unigram, word_bi_f, word_bi_b, syl_tri_f,
                         correct_word_num += 1
                     else:
                         error_word_num += 1
-        print(k, "time :", time.time() - start)
+        print(f'{k} time : {time.time() - start}')
         if (time.time() - start) > 10:
             print(s[0])
         # if (k+1) % 100 == 0:
