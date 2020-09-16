@@ -167,15 +167,14 @@ def context_window_list(wcl, word_bi_f, word_bi_b):
                 candi_score_temp = []
             # print(score_list)
             if check:  # 바이그렘 정보가 없을 경우 빈도수 최대?, 첫 임력?
-                candi_word_list = list(word_candis_score_buff.keys())
+                candi_word_list = word_candis_score_buff.keys()
                 for cw in candi_word_list:
-                    key_list = list(word_candis_score_buff[cw].keys())
-                    for key in key_list:
+                    for key in word_candis_score_buff[cw].keys():
                         word_candis_score_buff[cw][key] = 1.
                 score_list.append(word_candis_score_buff)
                 word_candis_score_buff = {}
             else:
-                for kk in list(word_candis_score_buff.keys()): #Check
+                for kk in word_candis_score_buff.keys(): #Check
                     sorted_buff = sorted(
                         word_candis_score_buff[kk].items(), key=itemgetter(1), reverse=True)
                     if sorted_buff[0][1] == 0.:
@@ -192,7 +191,7 @@ def viterbi_edit(sent, unigram, word_bi_f, word_bi_b, syl_tri_f, syl_tri_b, min_
         sent, unigram, syl_tri_f, syl_tri_b, min_freq, using_syl_edit)
     # rute = bigram_score_list_dict(word_combi_list, word_bigram) #단방향
     rute = context_window_list(word_combi_list, word_bi_f, word_bi_b)  # 양방향
-    paths = []
+    paths = [] #경로들을 추려서 저장
     original_tokens = sent.strip().split()
     # print(rute)
     for i, node_list in enumerate(word_combi_list[1:-1]):
