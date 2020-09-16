@@ -97,7 +97,7 @@ def word_candidats(word, unigram):  # 입력 어절의 후보 어절들의 유�
 def syllable_edit_word(word, unigram, syl_tri_f, syl_tri_b, n_gram):  # 음절 ngram을 이용한 어절 수정 모듈
     chars = syllable_add_SEtoken(word.strip(), n_gram)
 
-    temp = 1.
+    score = 1.
     for i, char in enumerate(chars):
         if len(char) == 1:
             if check_syllable(char):
@@ -115,15 +115,15 @@ def syllable_edit_word(word, unigram, syl_tri_f, syl_tri_b, n_gram):  # 음절 n
                         b_p = syl_tri_b[b_chars][char]
 
                 if f_p == 0 and b_p == 0:
-                    temp = 0.
+                    score = 0.
                     break
 
                 if i == 0:
-                    temp *= b_p
+                    score *= b_p
                 else:
-                    temp *= ((f_p + b_p) / 2)
+                    score *= ((f_p + b_p) / 2)
 
-    if temp > 0:
+    if score > 0:
         return chars
     else:
         wc_list = word_candidats(word, unigram)
@@ -131,7 +131,7 @@ def syllable_edit_word(word, unigram, syl_tri_f, syl_tri_b, n_gram):  # 음절 n
 
     for i, wc in enumerate(wc_list[1:]):
         chars = syllable_add_SEtoken(wc[0], n_gram)
-        temp = 1.
+        score = 1.
         for j, char in enumerate(chars):
             if len(char) == 1:
                 if check_syllable(char):
@@ -148,14 +148,14 @@ def syllable_edit_word(word, unigram, syl_tri_f, syl_tri_b, n_gram):  # 음절 n
                             b_p = syl_tri_b[b_chars][char]
 
                     if j == 2:
-                        temp *= b_p
+                        score *= b_p
                     else:
-                        temp *= ((f_p + b_p) / 2)
+                        score *= ((f_p + b_p) / 2)
 
-                    if temp == 0:
-                        wc_list[i + 1] = (wc_list[i + 1][0], temp)
+                    if score == 0:
+                        wc_list[i + 1] = (wc_list[i + 1][0], score)
                         break
-        wc_list[i + 1] = (wc_list[i + 1][0], temp)
+        wc_list[i + 1] = (wc_list[i + 1][0], score)
 
     wc_list = sorted(wc_list, key=lambda x: x[1], reverse=True)
     if wc_list[0][1] == 0.:
@@ -171,9 +171,9 @@ def make_word_candidats(word, unigram, syl_tri_f, syl_tri_b, min_freq,
 
     if re.search('\d+', word):  # 어절 ngram 검사를 위한 숫자 특수기호화 사전 작업
         num_buff = list(filter(None, re.split('\D+', word)))
-        word = re.sub('\d+', NUMBER, word)
+        replace_num_word = re.sub('\d+', NUMBER, word)
 
-    result = word_candidats(word, unigram)  # 유니그램 체크를 통한 후보 어절 결과
+    result = word_candidats(replace_num_word, unigram)  # 유니그램 체크를 통한 후보 어절 결과
 
     for r in result:
         if r[1] > min_freq:
@@ -350,9 +350,9 @@ def read_text(path):
 
     for i, line in enumerate(lines):
         if line[0] in ['<', '>']:
-            temp = line[1:].strip().replace('"', '')
-            temp = temp.replace('·', '')
-            typo_set.append(temp)
+            r_line = line[1:].strip().replace('"', '')
+            r_line = r_line.replace('·', '')
+            typo_set.append(r_line)
         else:
             typo_set.append(line.strip())
             result.append(typo_set)
@@ -392,25 +392,25 @@ def edit_test(input_path, output_path, unigram, word_bi_f, word_bi_b, word_tri_f
             continue
         target_sent = s[0].split()
         # 음절 임베딩을 사용한 경우를 찾기 위한 조치
-        temp_temp_temp = ' '.join(edit_sent_result)
-        if temp_temp_temp == s[0]:
+        edited_sent = ' '.join(edit_sent_result)
+        if edited_sent == s[0]: #정답 확인
             correct_sent_num += 1
             correct_word_num += len(target_sent)
             correct_typo_word_num += 3
             correct_result += f'<{s[0]}\n>{s[1]}\n{s[2]}\n\n'
         else:
             error_result += f'<{s[0]}\n>{s[1]}\n{s[2]}\n==>{" ".join(edit_sent_result)}\n\n'
-            for i, word in enumerate(target_sent):  # 음절 임베딩을 사용한 경우를 찾기 위한 조치
+            for i, correct_word in enumerate(target_sent):  # 음절 임베딩을 사용한 경우를 찾기 위한 조치
                 if i in typo_pos_int:
-                    temp_temp = edit_sent_result[i]
-                    if temp_temp == word:
+                    edited_word = edit_sent_result[i]
+                    if edited_word == correct_word:
                         correct_typo_word_num += 1
                         correct_word_num += 1
                     else:
                         no_edit_typo += 1
                 else:
-                    temp_temp = edit_sent_result[i]
-                    if temp_temp == word:
+                    edited_word = edit_sent_result[i]
+                    if edited_word == correct_word:
                         correct_word_num += 1
                     else:
                         error_word_num += 1

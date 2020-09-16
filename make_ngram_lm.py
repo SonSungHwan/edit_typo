@@ -13,8 +13,6 @@ ENG = '<<ENG>>'
 SENT_START = '<<SOS>>'
 SENT_END = '<<EOS>>'
 
-corpus_path = 'C:/Users/ssh/Desktop/작업/data/KCC150_Korean_sentences_UTF8/KCC150_Korean_sentences_UTF8.txt'
-
 
 def n_gram(chars, n):
     return list(zip(*[chars[i:] for i in range(n)]))

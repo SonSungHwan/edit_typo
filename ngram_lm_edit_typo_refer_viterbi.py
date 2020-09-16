@@ -94,8 +94,7 @@ def word_candidats(word, unigram):  # 입력 어절의 후보 어절들의 유�
 
 def context_window_list(wcl, word_bi_f, word_bi_b):
     score_list = []
-    buff = {}
-    buf = []
+    word_candis_score_buff = {}
 
     for i, candidate in enumerate(wcl[1:-1]):
         if candidate[0][1] == 1.0 or i == 0:
@@ -105,46 +104,45 @@ def context_window_list(wcl, word_bi_f, word_bi_b):
                     for aft_word in wcl[i + 2]:
                         try:
                             if replace_num(cw[0]) in word_bi_b[replace_num(aft_word[0])]:
-                                if cw[0] not in buff:
-                                    buff[cw[0]] = {}
-                                    buff[cw[0]][SENT_START] = 0.
+                                if cw[0] not in word_candis_score_buff:
+                                    word_candis_score_buff[cw[0]] = {}
+                                    word_candis_score_buff[cw[0]][SENT_START] = 0.
                                 try:
-                                    buff[cw[0]][SENT_START] += word_bi_b[replace_num(aft_word[0])][
+                                    word_candis_score_buff[cw[0]][SENT_START] += word_bi_b[replace_num(aft_word[0])][
                                         replace_num(cw[0])]
                                 except KeyError:
                                     pass
                         except KeyError:
                             pass
 
-                    if cw[0] in buff:
-                        buff[cw[0]][SENT_START] /= len(buff)
-                        check += buff[cw[0]][SENT_START]
+                    if cw[0] in word_candis_score_buff:
+                        word_candis_score_buff[cw[0]][SENT_START] /= len(word_candis_score_buff)
+                        check += word_candis_score_buff[cw[0]][SENT_START]
                 if check == 0.:
-                    buff = {}
+                    word_candis_score_buff = {}
                     max_index = max(candidate, key=lambda x: x[1])
                     candi_word = max_index[0]
-                    buff[candi_word] = {}
-                    buff[candi_word][SENT_START] = 1.
-                score_list.append(buff)
-                buff = {}
+                    word_candis_score_buff[candi_word] = {}
+                    word_candis_score_buff[candi_word][SENT_START] = 1.
+                score_list.append(word_candis_score_buff)
+                word_candis_score_buff = {}
 
             else:
                 max_index = max(candidate, key=lambda x: x[1])
                 candi_word = max_index[0]
-                buff[candi_word] = {}
+                word_candis_score_buff[candi_word] = {}
 
                 for pre_word in wcl[i]:
-                    buff[candi_word][pre_word[0]] = 1.
+                    word_candis_score_buff[candi_word][pre_word[0]] = 1.
 
-                score_list.append(buff)
-                buff = {}
+                score_list.append(word_candis_score_buff)
+                word_candis_score_buff = {}
         else:
-            temp = []
+            candi_score_temp = []
             check = True
             for word in candidate:
-                buff[word[0]] = {}
+                word_candis_score_buff[word[0]] = {}
                 for pre_word in wcl[i]:
-                    f_p = 0.
                     b_p = 0.
                     try:
                         f_p = word_bi_f[replace_num(
@@ -159,34 +157,32 @@ def context_window_list(wcl, word_bi_f, word_bi_b):
                         except KeyError:
                             b_p += 0.
 
-                    temp.append(
+                    candi_score_temp.append(
                         (word[0], pre_word[0], (f_p + (b_p / len(wcl[i + 2]))) / 2))
-                    buff[word[0]][pre_word[0]] = (
+                    word_candis_score_buff[word[0]][pre_word[0]] = (
                         f_p + (b_p / len(wcl[i + 2]))) / 2
-                buf.append(temp)
-                temp = sorted(temp, key=lambda x: x[2], reverse=True)
-                if temp[0][2] > 0.:
+                candi_score_temp = sorted(candi_score_temp, key=lambda x: x[2], reverse=True)
+                if candi_score_temp[0][2] > 0.:
                     check = False
-                temp = []
+                candi_score_temp = []
             # print(score_list)
             if check:  # 바이그렘 정보가 없을 경우 빈도수 최대?, 첫 임력?
-                candi_word_list = list(buff.keys())
+                candi_word_list = list(word_candis_score_buff.keys())
                 for cw in candi_word_list:
-                    key_list = list(buff[cw].keys())
+                    key_list = list(word_candis_score_buff[cw].keys())
                     for key in key_list:
-                        buff[cw][key] = 1.
-                score_list.append(buff)
-                buff = {}
+                        word_candis_score_buff[cw][key] = 1.
+                score_list.append(word_candis_score_buff)
+                word_candis_score_buff = {}
             else:
-                for kk in list(buff.keys()):
+                for kk in list(word_candis_score_buff.keys()): #Check
                     sorted_buff = sorted(
-                        buff[kk].items(), key=itemgetter(1), reverse=True)
+                        word_candis_score_buff[kk].items(), key=itemgetter(1), reverse=True)
                     if sorted_buff[0][1] == 0.:
-                        del buff[kk]
+                        del word_candis_score_buff[kk]
 
-                score_list.append(buff)
-                buff = {}
-            buf = []
+                score_list.append(word_candis_score_buff)
+                word_candis_score_buff = {}
 
     return score_list
 
@@ -201,7 +197,7 @@ def viterbi_edit(sent, unigram, word_bi_f, word_bi_b, syl_tri_f, syl_tri_b, min_
     # print(rute)
     for i, node_list in enumerate(word_combi_list[1:-1]):
         # path = [[], 1.]
-        temp_temp_path = []
+        all_path_buff = []
         for node in node_list:
             # candi_keys는 실제 타겟 단어로
             # print(node)
@@ -231,10 +227,10 @@ def viterbi_edit(sent, unigram, word_bi_f, word_bi_b, syl_tri_f, syl_tri_b, min_
                         # print(rute[i][node[0]][pk])
                         # print('-----')
                     # if len(temp_path) > 0:
-                    if temp_path not in temp_temp_path:
-                        temp_temp_path.extend(temp_path)
+                    if temp_path not in all_path_buff:
+                        all_path_buff.extend(temp_path)
 
-                # if len(temp_temp_path) == 0:
+                # if len(all_path_buff) == 0:
                 # for k, p in enumerate(paths):
                 # 'dd'
             else:
@@ -242,7 +238,7 @@ def viterbi_edit(sent, unigram, word_bi_f, word_bi_b, syl_tri_f, syl_tri_b, min_
                     if rute[i][node[0]][pk] > 0.:
                         paths.append([[node[0]], 1. * rute[i][node[0]][pk]])
 
-            if len(temp_temp_path) == 0:
+            if len(all_path_buff) == 0:
                 for k, p in enumerate(paths):
                     temp_p = []
                     c_paths = copy.deepcopy(paths)
@@ -253,7 +249,7 @@ def viterbi_edit(sent, unigram, word_bi_f, word_bi_b, syl_tri_f, syl_tri_b, min_
                             temp_p.append(node[0])
                             paths.append([temp_p, p[1]])
             else:
-                for ttp in temp_temp_path:
+                for ttp in all_path_buff:
                     if len(ttp[0]) == i + 1 and ttp not in paths:
                         paths.append(ttp)
 
@@ -284,17 +280,13 @@ def viterbi_edit(sent, unigram, word_bi_f, word_bi_b, syl_tri_f, syl_tri_b, min_
                           and temp_paths[path_index][0][-2] != original_tokens[i - 1]):
                         temp_paths[path_index] = rute_path
                 # '''
-
         paths = temp_paths
-        # print(paths, '\n\n')
 
     result = []
-    # print(paths)
     for path in paths:
         if len(sent.split()) == len(path[0]):
             result.append(path)
     result = sorted(result, key=lambda x: x[1], reverse=True)
-    # print(result)
     return result[0]
 
 
@@ -306,9 +298,9 @@ def read_text(path):
 
     for i, line in enumerate(lines):
         if line[0] in ['<', '>']:
-            temp = line[1:].strip().replace('"', '')
-            temp = temp.replace('·', '')
-            typo_set.append(temp)
+            r_line = line[1:].strip().replace('"', '')
+            r_line = r_line.replace('·', '')
+            typo_set.append(r_line)
         else:
             typo_set.append(line.strip())
             result.append(typo_set)
