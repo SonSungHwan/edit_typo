@@ -195,10 +195,10 @@ def main():
         "--corpus_file", default='./KCC150_Korean_sentences_UTF8.txt', type=str, required=True, help="corpus data path"
     )
     parser.add_argument(
-        "--output_path", default='./', type=str, reqrired=True, help="output result folder path"
+        "--output_path", default='./', type=str, required=True, help="output result folder path"
     )
     parser.add_argument(
-        "--per_sent_typo_num", default=3, type=int, reqrired=True, help="number of typos per sentence"
+        "--per_sent_typo_num", default=3, type=int, required=True, help="number of typos per sentence"
     )
 
     args = parser.parse_args()

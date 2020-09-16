@@ -438,7 +438,7 @@ def main():
         "--typo_text_path", default='./typo_text.txt', type=str, required=True, help="typo text path"
     )
     parser.add_argument(
-        "--output_path", default='./', type=str, reqrired=True, help="output result folder path"
+        "--output_path", default='./', type=str, required=True, help="output result folder path"
     )
     parser.add_argument(
         "--using_syl_edit",
@@ -446,33 +446,33 @@ def main():
         help="using syllable edit module",
     )
     parser.add_argument(
-        "--unigram_path", default='./unigram_150.json', type=str, reqrired=True, help="unigram lm path"
+        "--unigram_path", default='./unigram_150.json', type=str, required=True, help="unigram lm path"
     )
     parser.add_argument(
-        "--word_bigram_f_path", default='./word_bi_result.json', type=str, reqrired=True,
+        "--word_bigram_f_path", default='./word_bi_result.json', type=str, required=True,
         help="word bigram forward lm path"
     )
     parser.add_argument(
-        "--word_bigram_b_path", default='./word_bi_result_reverse.json', type=str, reqrired=True,
+        "--word_bigram_b_path", default='./word_bi_result_reverse.json', type=str, required=True,
         help="word bigram backward lm path"
     )
     parser.add_argument(
-        "--word_trigram_f_path", default='./Wtri_M.json', type=str, reqrired=True, help="word trigram forward lm path"
+        "--word_trigram_f_path", default='./Wtri_M.json', type=str, required=True, help="word trigram forward lm path"
     )
     parser.add_argument(
-        "--word_trigram_b_path", default='./Wtri_M_r.json', type=str, reqrired=True,
+        "--word_trigram_b_path", default='./Wtri_M_r.json', type=str, required=True,
         help="word trigram backward lm path"
     )
     parser.add_argument(
-        "--syl_trigram_f_path", default='./f_result_tri.json', type=str, reqrired=True,
+        "--syl_trigram_f_path", default='./f_result_tri.json', type=str, required=True,
         help="syllable trigram forward lm path"
     )
     parser.add_argument(
-        "--syl_trigram_b_path", default='./b_result_tri.json', type=str, reqrired=True,
+        "--syl_trigram_b_path", default='./b_result_tri.json', type=str, required=True,
         help="syllable trigram backward lm path"
     )
     parser.add_argument(
-        "--unigram_min_freq", default=1, type=int, reqrired=True, help="candidate unigram minimum frequency"
+        "--unigram_min_freq", default=1, type=int, required=True, help="candidate unigram minimum frequency"
     )
 
     args = parser.parse_args()
