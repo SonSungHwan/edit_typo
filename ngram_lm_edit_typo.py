@@ -16,9 +16,9 @@ ENG = '<<ENG>>'
 SENT_START = '<<SOS>>'
 SENT_END = '<<EOS>>'
 
-TOTAL_CHAR = ['ㄲ', 'ㅆ', 'ㄱ', 'ㅅ', 'ㅛ', 'ㅕ', 'ㄹ', 'ㅎ', 'ㅗ', 'ㅊ', 'ㅍ', 'ㅠ', 'ㄺ', 'ㄽ', 'ㅃ', 'ㅉ',
-              'ㄸ', 'ㅒ', 'ㅖ', 'ㅂ', 'ㅈ', 'ㄷ', 'ㅁ', 'ㄴ', 'ㅇ', 'ㅋ', 'ㅌ', 'ㅑ', 'ㅐ', 'ㅔ', 'ㅓ', 'ㅏ',
-              'ㅣ', 'ㅜ', 'ㅡ', 'ㅘ', 'ㅚ', 'ㅟ', 'ㅢ']
+TOTAL_CHAR = set(['ㄲ', 'ㅆ', 'ㄱ', 'ㅅ', 'ㅛ', 'ㅕ', 'ㄹ', 'ㅎ', 'ㅗ', 'ㅊ', 'ㅍ', 'ㅠ', 'ㄺ', 'ㄽ', 'ㅃ', 'ㅉ',
+                  'ㄸ', 'ㅒ', 'ㅖ', 'ㅂ', 'ㅈ', 'ㄷ', 'ㅁ', 'ㄴ', 'ㅇ', 'ㅋ', 'ㅌ', 'ㅑ', 'ㅐ', 'ㅔ', 'ㅓ', 'ㅏ',
+                  'ㅣ', 'ㅜ', 'ㅡ', 'ㅘ', 'ㅚ', 'ㅟ', 'ㅢ'])
 
 
 def make_candidats(char):
@@ -107,12 +107,12 @@ def syllable_edit_word(word, unigram, syl_tri_f, syl_tri_b, n_gram):  # 음절 n
 
                 f_p, b_p = 0., 0.
 
-                if f_chars in list(syl_tri_f.keys()):
-                    if char in list(syl_tri_f[f_chars].keys()):
+                if f_chars in syl_tri_f.keys():
+                    if char in syl_tri_f[f_chars].keys():
                         f_p = syl_tri_f[f_chars][char]
 
-                if b_chars in list(syl_tri_b.keys()):
-                    if char in list(syl_tri_b[b_chars].keys()):
+                if b_chars in syl_tri_b.keys():
+                    if char in syl_tri_b[b_chars].keys():
                         b_p = syl_tri_b[b_chars][char]
 
                 if f_p == 0 and b_p == 0:
@@ -140,12 +140,12 @@ def syllable_edit_word(word, unigram, syl_tri_f, syl_tri_b, n_gram):  # 음절 n
                     b_chars = ''.join(chars[j + 1: j + n_gram])
 
                     f_p, b_p = 0., 0.
-                    if f_chars in list(syl_tri_f.keys()):
-                        if char in list(syl_tri_f[f_chars].keys()):
+                    if f_chars in syl_tri_f.keys():
+                        if char in syl_tri_f[f_chars].keys():
                             f_p = syl_tri_f[f_chars][char]
 
-                    if b_chars in list(syl_tri_b.keys()):
-                        if char in list(syl_tri_b[b_chars].keys()):
+                    if b_chars in syl_tri_b.keys():
+                        if char in syl_tri_b[b_chars].keys():
                             b_p = syl_tri_b[b_chars][char]
 
                     if j == 2:
