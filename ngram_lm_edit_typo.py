@@ -95,8 +95,7 @@ def word_candidats(word, unigram):  # 입력 어절의 후보 어절들의 유�
 
 
 def syllable_edit_word(word, unigram, syl_tri_f, syl_tri_b, n_gram):  # 음절 ngram을 이용한 어절 수정 모듈
-    word = word.strip()
-    chars = syllable_add_SEtoken(word, n_gram)
+    chars = syllable_add_SEtoken(word.strip(), n_gram)
 
     temp = 1.
     for i, char in enumerate(chars):
@@ -227,10 +226,9 @@ def make_word_candidats(word, unigram, syl_tri_f, syl_tri_b, min_freq,
 
 def make_sent_combi_list(sent, unigram, syl_tri_f, syl_tri_b, min_freq,
                          using_syl_edit):  # 문장을 어절 단위로 후보 어절들을 생성(원본은 유지 if 원본밖에 없다면, 후보 어절들의 Unigram 빈도수가 0인 경우)
-    words = sent.split()
     sent_combi_list = []
 
-    for word in words:
+    for word in sent.split():
         if check_han_word(word):
             sent_combi_list.append(make_word_candidats(
                 word, unigram, syl_tri_f, syl_tri_b, min_freq, using_syl_edit))

@@ -26,11 +26,11 @@ def get_word_list(text):  # word 단위 리스트 생성
 
 def syllable_add_SEtoken(word, n):  # 음절 ngram 정제, word 시작, 끝 토큰 추가
     # word = re.sub('[a-zA-Z]+', eng, word) #영어 단어를 하나의 토큰으로 정함
-    word = re.sub('\d+', NUMBER, word)
+    replace_num_word = re.sub('\d+', NUMBER, word)
 
     result = []
     temp = ''
-    for c in word:
+    for c in replace_num_word:
         if check_syllable(c):
             if len(temp) > 0:
                 result.append(temp)
@@ -58,9 +58,9 @@ def syllable_add_SEtoken(word, n):  # 음절 ngram 정제, word 시작, 끝 토�
 
 def get_sent_list(sent, n_gram):  # sent 단위 리스트 생성
     words = []
-    sent = sent.split()
+    split_sent = sent.split()
 
-    for word in sent:
+    for word in split_sent:
         word = re.sub('\d+', NUMBER, word)
         words.append(word)
 
