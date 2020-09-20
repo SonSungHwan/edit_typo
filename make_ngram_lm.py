@@ -4,6 +4,7 @@ import re
 import argparse
 import logging
 from collections import Counter
+from collections import defaultdict
 from tqdm import tqdm
 
 from hangul_char_util import readlines_file, save_json, check_syllable
@@ -61,7 +62,7 @@ def get_sent_list(sent, n_gram):  # sent 단위 리스트 생성
         word = re.sub('\d+', NUMBER, word)
         words.append(word)
 
-    for i in range(n_gram - 1):
+    for _ in range(n_gram - 1):
         words.append(SENT_END)  # 역방향 ngram 구할 때 사용
         words.insert(0, SENT_START)
     return words
@@ -117,20 +118,9 @@ def calc_n_gram(text, n, f_calc_result, b_calc_result, syl_ngram, last):
     for i, f_sw in enumerate(forward):
         b_sw = backward[i]
         for j, f_wc in enumerate(f_sw):
-            if join_str.join(f_wc[:-1]) not in f_calc_result:
-                f_calc_result[join_str.join(f_wc[:-1])] = Counter()
-            if f_calc_result[join_str.join(f_wc[:-1])][f_wc[-1]] == 0:
-                f_calc_result[join_str.join(f_wc[:-1])][f_wc[-1]] = 1
-            else:
-                f_calc_result[join_str.join(f_wc[:-1])][f_wc[-1]] += 1
-
+            f_calc_result[join_str.join(f_wc[:-1])][f_wc[-1]] += 1
             b_wc = b_sw[j]
-            if join_str.join(b_wc[1:]) not in b_calc_result:
-                b_calc_result[join_str.join(b_wc[1:])] = Counter()
-            if b_calc_result[join_str.join(b_wc[1:])][b_wc[0]] == 0:
-                b_calc_result[join_str.join(b_wc[1:])][b_wc[0]] = 1
-            else:
-                b_calc_result[join_str.join(b_wc[1:])][b_wc[0]] += 1
+            b_calc_result[join_str.join(b_wc[1:])][b_wc[0]] += 1
 
     if last:
         for key in f_calc_result.keys():
@@ -151,8 +141,8 @@ def calc_n_gram(text, n, f_calc_result, b_calc_result, syl_ngram, last):
 def mass_data_lm(path, line_num, n_gram, syl_ngram):
     lines = readlines_file(path)
     len_lines = len(lines)
-    f_calc_result = {}
-    b_calc_result = {}
+    f_calc_result = defaultdict(Counter)
+    b_calc_result = defaultdict(Counter)
     index = 0
 
     while (1):
