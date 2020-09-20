@@ -36,13 +36,9 @@ TYPO_TYPE_PRO_LIST = [0.25, 0.25, 0.25, 0.25]
 def typo_type_probability(pro_list, n_iter):
     count = np.zeros(len(pro_list), dtype=int)
 
-    for iter in range(n_iter):
-        ratio = random.random()
-        temp = 0
-        for i, p in enumerate(pro_list):
-            if ratio >= temp and ratio < (p + temp):
-                count[i] += 1
-            temp += p
+    typo_type_num_list = random.choices(range(len(pro_list)), weights=pro_list, k=n_iter)
+    for typo_type in typo_type_num_list:
+        count[typo_type] += 1
 
     return count
 
@@ -53,26 +49,26 @@ def check_IMF(word, pro_char):
     num = 0
 
     for i, char in enumerate(word):
-        temp = []
-        c_temp = []
+        char_list_temp = []
+        change_list_temp = []
         if check_syllable(char):
             split_char = split_syllable_char(char)
             for c in split_char:
                 if c in pro_char:
-                    c_temp.append(1)  # 문제!
+                    change_list_temp.append(1)  # 문제!
                     num += 1
                 else:
-                    c_temp.append(0)
+                    change_list_temp.append(0)
 
-            temp.append((split_char[0], 'INITIALS'))
-            temp.append((split_char[1], 'MEDIALS'))
+            char_list_temp.append((split_char[0], 'INITIALS'))
+            char_list_temp.append((split_char[1], 'MEDIALS'))
             if len(split_char) == 3:
-                temp.append((split_char[2], 'FINALS'))
+                char_list_temp.append((split_char[2], 'FINALS'))
         else:
-            temp.append((char, 'none'))
-            c_temp.append(0)
-        change_list.append(c_temp)
-        char_list.append(temp)
+            char_list_temp.append((char, 'none'))
+            change_list_temp.append(0)
+        change_list.append(change_list_temp)
+        char_list.append(char_list_temp)
     return char_list, change_list, num
 
 
@@ -173,7 +169,7 @@ def make_typo(sentence, typo_type_pro_list, n_typo):
     type_num = 0
     for i, t in enumerate(result_type_list):
         if t > 0:
-            for j in range(t):
+            for _ in range(t):
                 typo_words.append(join_char_list(
                     word_typo(words[typo_pos][type_num], TOTAL_TYPO_TYPE[i])))
                 type_num += 1
