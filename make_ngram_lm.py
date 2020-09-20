@@ -167,16 +167,12 @@ def mass_data_lm(path, line_num, n_gram, syl_ngram):
     return f_calc_result, b_calc_result
 
 
-def unigram(path):
-    lines = readlines_file(path)
-    cnt = Counter()
+def unigram(path, min_freq):
+    text = read_file(path)
 
-    for i, line in enumerate(tqdm(lines)):
-        words = get_sent_list(line, 1)
-        for word in words:
-            cnt[word] += 1
+    cnt = Counter(get_word_list(text.strip()))
 
-    return {k: cnt[k] for k in cnt if cnt[k] > 1}
+    return {k: cnt[k] for k in cnt if cnt[k] > min_freq}
 
 
 def main():
@@ -195,13 +191,16 @@ def main():
         "--per_process_line_num", default=100000, type=int, help="per process sentence num"
     )
     parser.add_argument(
+        "--unigram_min_freq", default=1, type=int, help="unigram minimum frequency setting"
+    )
+    parser.add_argument(
         "--syl_ngram", action='store_true', help="if True make syllable ngram"
     )
 
     args = parser.parse_args()
 
     if args.ngram_n == 1:
-        save_json(args.output_path + 'unigram.json', unigram(args.corpus_file))
+        save_json(args.output_path + 'unigram.json', unigram(args.corpus_file, args.unigram_min_freq))
     elif args.ngram_n > 1:
         f_result, b_result = mass_data_lm(
             args.corpus_file, args.per_process_line_num, args.ngram_n, args.syl_ngram)
