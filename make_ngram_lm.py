@@ -7,7 +7,7 @@ from collections import Counter
 from collections import defaultdict
 from tqdm import tqdm
 
-from hangul_char_util import readlines_file, save_json, check_syllable
+from hangul_char_util import readlines_file, read_file, save_json, check_syllable, check_han_word
 
 NUMBER = '<<NUM>>'
 ENG = '<<ENG>>'
@@ -68,17 +68,23 @@ def get_sent_list(sent, n_gram):  # sent 단위 리스트 생성
     return words
 
 
-def fwbw_n_gram(n_gram):
+def fwbw_n_gram(n_gram, syl_ngram):
     forward = []
     backward = []
 
-    for chars in n_gram:
-        if len(chars[-1]) == 1:
-            if check_syllable(chars[-1]):
-                forward.append(chars)
-        if len(chars[0]) == 1:
-            if check_syllable(chars[0]):
-                backward.append(chars)
+    for n in n_gram:
+        if syl_ngram:
+            if len(n[-1]) == 1:
+                if check_syllable(n[-1]):
+                    forward.append(n)
+            if len(n[0]) == 1:
+                if check_syllable(n[0]):
+                    backward.append(n)
+        else:
+            if check_han_word(n[-1]):
+                forward.append(n)
+            if check_han_word(n[0]):
+                backward.append(n)
 
     return forward, backward
 
@@ -90,7 +96,7 @@ def preprocessing(lines, n, syl_ngram):
     if not syl_ngram:
         for line in lines:
             p_f_words, p_b_words = fwbw_n_gram(
-                n_gram(get_sent_list(line, n), n))
+                n_gram(get_sent_list(line.strip(), n), n), syl_ngram)
             if len(p_f_words) > 0:
                 p_forward.append(p_f_words)
             if len(p_b_words) > 0:
@@ -100,7 +106,7 @@ def preprocessing(lines, n, syl_ngram):
 
         for word in words:
             p_f_word, p_b_word = fwbw_n_gram(
-                n_gram(syllable_add_SEtoken(word, n), n))
+                n_gram(syllable_add_SEtoken(word, n), n), syl_ngram)
             if len(p_f_word) > 0:
                 p_forward.append(p_f_word)
             if len(p_b_word) > 0:
