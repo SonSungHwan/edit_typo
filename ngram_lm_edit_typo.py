@@ -47,15 +47,6 @@ def make_candidats(char):
     return candidats
 
 
-def make_candidate_word(word):
-    candidate_words = []
-
-    for char in make_candidats(word[0]):
-        candidate_words.append(char + word[1:])
-
-    return candidate_words
-
-
 def word_candidats(word, unigram):  # 입력 어절의 후보 어절들의 유니그램 존재 여부에 따라 후보 어절을 걸러내는 모듈
     char_list = []
     word_candidate_list = []
