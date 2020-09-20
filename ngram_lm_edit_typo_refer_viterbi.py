@@ -169,8 +169,7 @@ def context_window_list(wcl, word_bi_f, word_bi_b):
             if check:  # 바이그렘 정보가 없을 경우 빈도수 최대?, 첫 임력?
                 candi_word_list = word_candis_score_buff.keys()
                 for cw in candi_word_list:
-                    for key in word_candis_score_buff[cw].keys():
-                        word_candis_score_buff[cw][key] = 1.
+                    word_candis_score_buff[cw][key] = {k : 1 for k in word_candis_score_buff[cw].keys()}
                 score_list.append(word_candis_score_buff)
                 word_candis_score_buff = {}
             else:
@@ -205,9 +204,7 @@ def viterbi_edit(sent, unigram, word_bi_f, word_bi_b, syl_tri_f, syl_tri_b, min_
             except KeyError:
                 continue
 
-            for j, p in enumerate(paths):
-                if len(p[0]) < i:
-                    del paths[j]
+            paths = [p for p in paths if len(p[0]) >= i]
 
             if len(paths) > 0:  # 0이 아닌 path를 추가 시키도록 수정해야함
                 for k, p in enumerate(paths):
